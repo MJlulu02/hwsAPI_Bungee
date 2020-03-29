@@ -1,6 +1,8 @@
 package Plugins.hwsAPI.PluginsManageur;
 
+import Plugins.hwsAPI.DataManageur.DataManageur;
 import net.md_5.bungee.api.connection.ProxiedPlayer;
+import net.md_5.bungee.api.event.PlayerDisconnectEvent;
 import net.md_5.bungee.api.event.PostLoginEvent;
 import net.md_5.bungee.api.plugin.Listener;
 import net.md_5.bungee.event.EventHandler;
@@ -12,7 +14,7 @@ public class PlayerJoin implements Listener {
 	public void onjoin(PostLoginEvent e) {
 		ProxiedPlayer p = e.getPlayer();
 		if (new HWSAPI().hwsConfig.getMongoDB() != null && new HWSAPI().hwsConfig.GetJedis() != null) {
-			// Get Player Data
+			new DataManageur(p).getPlayerData();
 		} else {
 			if (p.getPermissions().contains("HwsApi.Admin")) {
 				if (new HWSAPI().hwsConfig.GetJedis() == null && new HWSAPI().hwsConfig.getMongoDB() == null)
@@ -27,4 +29,9 @@ public class PlayerJoin implements Listener {
 		}
 	}
 
+	@EventHandler
+	public void onQuit(PlayerDisconnectEvent e) {
+		ProxiedPlayer p = e.getPlayer();
+		new DataManageur(p).setPlayerData();
+	}
 }
