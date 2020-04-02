@@ -1,4 +1,4 @@
 name: HwsAPI_Bungee
-version: 1.0
+version: 1.1
 author: DevOnCompany
 main: Plugins.hwsAPI.PluginsManageur.Main

@@ -1,30 +1,37 @@
 package Plugins.hwsAPI.Utils;
 
+import java.util.Arrays;
+
 import com.mongodb.DB;
 import com.mongodb.DBCollection;
 import com.mongodb.MongoClient;
+import com.mongodb.MongoCredential;
+import com.mongodb.ServerAddress;
 
 import redis.clients.jedis.Jedis;
 
 public class HWSConfig {
 
 	private String mongo_ip = null, mongo_usr = null, mongo_pass = null;
-	private int mongo_port = 27018;
+	private int mongo_port = 27017;
 	private String redis_ip = null, redis_pass = null;
 	private int redis_port = 6379;
 
 	private Jedis jedisclient = null;
-	private MongoClient mongoclient;
+	private MongoClient mongoclient = null;
 	private DB mcserverdb;
-	private DBCollection mdb_players = null;
+	private DBCollection mdb_players;
 
 	public Jedis GetJedis() {
-		if (jedisclient != null && this.redis_pass != null && this.jedisclient.isConnected()) {
-			jedisclient.auth(this.redis_pass);
-		}
+		this.jedisclient.disconnect();
+		this.jedisclient = new Jedis(this.getRedis_ip(), this.getRedis_port());
+		this.jedisclient.auth(this.redis_pass);
 		return jedisclient;
 	}
-	
+
+	public MongoClient getMongoConnection() {
+		return this.mongoclient;
+	}
 	public DBCollection getMongoDB() {
 		return this.mdb_players;
 	}
@@ -87,39 +94,43 @@ public class HWSConfig {
 
 	@SuppressWarnings("deprecation")
 	public boolean connect_mongo() {
-		if(this.mongoclient != null) {
+		if (this.mongoclient != null) {
 			return true;
-		}else if (this.getMongo_ip() == null || this.getMongo_usr() == null || this.getMongo_pass() == null) {
+		} else if (this.getMongo_ip() == null || this.getMongo_usr() == null || this.getMongo_pass() == null) {
 			return false;
 		}
-		// Init Connection
-		this.mongoclient = new MongoClient(this.getMongo_ip(), this.getMongo_port());
 
 		try {
-			this.mcserverdb = this.mongoclient.getDB("Hws_DataBase");
+			MongoCredential credential = MongoCredential.createCredential(this.getMongo_usr(), "admin",
+					this.getMongo_pass().toCharArray());
+			this.mongoclient = new MongoClient(new ServerAddress(this.getMongo_ip(), this.getMongo_port()),
+					Arrays.asList(credential));
+
+			this.mcserverdb = this.mongoclient.getDB("admin");
 			this.mdb_players = this.mcserverdb.getCollection("Hws_PlayerData");
-			this.mdb_players.count();
+			System.out.println("MongoDB connecté avec "+this.mdb_players.count()+" données");
 		} catch (Exception e) {
-			  this.mongoclient = null;
-			  return false;
+			this.mongoclient = null;
+			return false;
 		}
 
 		return true;
 	}
 
 	public boolean connect_redis() {
-		if(this.jedisclient != null) {
+		if (this.jedisclient != null) {
 			return true;
-		}else if (this.getRedis_ip() == null) {
+		} else if (this.getRedis_ip() == null) {
 			return false;
 		}
 		// Init Connection
 		this.jedisclient = new Jedis(this.getRedis_ip(), this.getRedis_port());
+		this.jedisclient.auth(this.redis_pass);
+		
 		if (!this.jedisclient.isConnected()) {
 			this.jedisclient = null;
 			return false;
 		}
-			
 
 		return true;
 	}

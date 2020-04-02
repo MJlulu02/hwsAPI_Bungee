@@ -13,25 +13,31 @@ public class PlayerJoin implements Listener {
 	@EventHandler
 	public void onjoin(PostLoginEvent e) {
 		ProxiedPlayer p = e.getPlayer();
-		if (new HWSAPI().hwsConfig.getMongoDB() != null && new HWSAPI().hwsConfig.GetJedis() != null) {
+		if (new HWSAPI().hwsConfig.getMongoConnection() != null && new HWSAPI().hwsConfig.GetJedis() != null) {
 			new DataManageur(p).getPlayerData();
 		} else {
 			if (p.getPermissions().contains("HwsApi.Admin")) {
 				if (new HWSAPI().hwsConfig.GetJedis() == null && new HWSAPI().hwsConfig.getMongoDB() == null)
-					p.disconnect("&4Erreur Aucune Base de donné Connecté !");
+					p.disconnect("§4Erreur Aucune Base de donné Connecté !");
 				if (new HWSAPI().hwsConfig.getMongoDB() == null)
-					p.disconnect("&4Erreur MongoDB n'est pas Connecté !");
+					p.disconnect("§4Erreur MongoDB n'est pas Connecté !");
 				if (new HWSAPI().hwsConfig.GetJedis() == null)
-					p.disconnect("&4Erreur Redis n'est pas Connecté !");
+					p.disconnect("§4Erreur Redis n'est pas Connecté !");
 			} else {
-				p.disconnect("&4Impossible de se connecté, merci de contacté un Administrateur !");
+				p.disconnect("§4Impossible de se connecté, merci de contacté un Administrateur !");
 			}
 		}
+		
+		if(p.hasPermission("Hws.TchatStaff"))
+			Main.instance.StaffListe.add(p);
 	}
 
 	@EventHandler
 	public void onQuit(PlayerDisconnectEvent e) {
 		ProxiedPlayer p = e.getPlayer();
+		if(Main.instance.StaffListe.contains(p))
+				Main.instance.StaffListe.remove(p);
+		
 		new DataManageur(p).setPlayerData();
 	}
 }

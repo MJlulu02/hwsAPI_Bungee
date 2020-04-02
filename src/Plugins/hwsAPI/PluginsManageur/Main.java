@@ -1,7 +1,14 @@
 package Plugins.hwsAPI.PluginsManageur;
 
+import java.util.ArrayList;
+
+import Plugins.hwsAPI.Commands.CommandAnnonce;
+import Plugins.hwsAPI.Commands.CommandHub;
+import Plugins.hwsAPI.Commands.CommandMsg;
+import Plugins.hwsAPI.Commands.CommandStaffTchat;
 import Plugins.hwsAPI.Utils.HWSConfig;
 import net.md_5.bungee.api.ProxyServer;
+import net.md_5.bungee.api.connection.ProxiedPlayer;
 import net.md_5.bungee.api.plugin.Listener;
 import net.md_5.bungee.api.plugin.Plugin;
 
@@ -17,16 +24,34 @@ public class Main extends Plugin implements Listener {
 	 * @version 0.0.1
 	 */
 
-	public static Main instance = null;
+	public static Main instance;
 	public HWSConfig hwsConfig;
+	public ArrayList<ProxiedPlayer> StaffListe = new ArrayList<ProxiedPlayer>();
 
+	@SuppressWarnings("static-access")
 	public void onEnable() {
 		System.out.println("[HwsAPI_Bungee] Enabled");
 
 		this.getProxy().getPluginManager().registerListener(this, this);
 		ProxyServer.getInstance().getPluginManager().registerListener(this, new PlayerJoin());
 
+		ProxyServer.getInstance().getPluginManager().registerCommand(this, new CommandAnnonce());
+		ProxyServer.getInstance().getPluginManager().registerCommand(this, new CommandMsg());
+		ProxyServer.getInstance().getPluginManager().registerCommand(this, new CommandStaffTchat());
+		ProxyServer.getInstance().getPluginManager().registerCommand(this, new CommandHub());
+
+		this.instance = this;
 		this.hwsConfig = new HWSConfig();
+		
+		//Test remove aprés !!
+		this.hwsConfig.setRedis_ip("51.77.149.191");
+		this.hwsConfig.setRedis_pass("b8tXJ/QyjSQInxPPTlPND5yOmaODjhJbnrD75F939Fe/xjPIcBzoA71yDPUgkxSyz/sSn8Wgln4ImDJA");
+		this.hwsConfig.connect_redis();
+		
+		this.hwsConfig.setMongo_ip("51.77.149.191");
+		this.hwsConfig.setMongo_pass("WN6uN44g2eA7yqse2mLC9RB8e9pUM43h");
+		this.hwsConfig.setMongo_usr("admin");
+		this.hwsConfig.connect_mongo();
 	}
 
 	public void onDisable() {
