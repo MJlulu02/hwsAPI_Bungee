@@ -8,6 +8,8 @@ import com.mongodb.DBObject;
 
 import Plugins.hwsAPI.PluginsManageur.HWSAPI;
 import Plugins.hwsAPI.PluginsManageur.Main;
+import Plugins.hwsAPI.Utils.HwsGradeAPI;
+import net.md_5.bungee.BungeeCord;
 import net.md_5.bungee.api.connection.ProxiedPlayer;
 import redis.clients.jedis.Jedis;
 
@@ -23,6 +25,7 @@ public class DataManageur {
 		this.p = p;
 	}
 
+	@SuppressWarnings("deprecation")
 	public void getPlayerData() {
 		if(this.jedis.exists("PlayerData:" + p.getName())) {
 			this.jedis.expire("PlayerData:" + p.getName(), -1);
@@ -43,6 +46,16 @@ public class DataManageur {
 		found.removeField("_id");
 		found.removeField("uuid");
 		
+		if(Main.instance.mMode == true) {
+			String PlayerGrade = (String) found.get("hwsrank");
+			HwsGradeAPI hwsGradeAPI = HwsGradeAPI.valueOf(PlayerGrade);
+			
+			  if(hwsGradeAPI.getPower() > 7) {
+				  p.disconnect("§cServeur Actuellement en Maintenance !");
+				  return;
+			  }
+		}
+		
 		for (String s : found.keySet()) {
 			this.HashData.put(s, found.get(s).toString());
 		}
@@ -55,7 +68,6 @@ public class DataManageur {
 
 	public void setPlayerData() {
 		this.HashData = (HashMap<String, String>) this.jedis.hgetAll("PlayerData:" + p.getName());
-		System.out.println(HashData.size()+" "+HashData.keySet());
 		this.HashData.put("pseudo", this.p.getName());
 		
 		DBObject r = new BasicDBObject("uuid", this.p.getUniqueId().toString());
@@ -66,22 +78,12 @@ public class DataManageur {
 
 			MongoDB_players.insert(r);
 		} else {
-			System.out.println(HashData.size()+" "+HashData.keySet());
-			System.out.println(found.keySet().size()+" "+found.keySet()+" - "+found.get("hwscoins"));
 			found.putAll(this.HashData);
-			System.out.println(found.keySet().size()+" "+found.keySet()+" - "+found.get("hwscoins"));
-
+			BungeeCord.getInstance().broadcast("f: "+found.keySet());
+			BungeeCord.getInstance().broadcast("f: "+this.HashData.keySet()+" - "+this.jedis.exists("PlayerData:" + p.getName()));
+			
 			MongoDB_players.save(found);
 		}
-		
-		this.jedis.expire("PlayerData:" + p.getName(), 8);
-		try {
-			Thread.sleep(1000);
-		} catch (InterruptedException e1) {
-			e1.printStackTrace();
-		}
-		System.out.println(this.jedis.hgetAll("PlayerData:" + p.getName()).size()+""+this.jedis.ttl("PlayerData:" + p.getName()));
-		
 	}
 
 }

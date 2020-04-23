@@ -4,6 +4,7 @@ import java.util.ArrayList;
 
 import Plugins.hwsAPI.Commands.CommandAnnonce;
 import Plugins.hwsAPI.Commands.CommandHub;
+import Plugins.hwsAPI.Commands.CommandMaintenance;
 import Plugins.hwsAPI.Commands.CommandMsg;
 import Plugins.hwsAPI.Commands.CommandStaffTchat;
 import Plugins.hwsAPI.Utils.HWSConfig;
@@ -23,9 +24,10 @@ public class Main extends Plugin implements Listener {
 	 * 
 	 * @version 0.0.1
 	 */
-
+	
 	public static Main instance;
 	public HWSConfig hwsConfig;
+	public boolean mMode = false;
 	public ArrayList<ProxiedPlayer> StaffListe = new ArrayList<ProxiedPlayer>();
 
 	@SuppressWarnings("static-access")
@@ -34,20 +36,22 @@ public class Main extends Plugin implements Listener {
 
 		this.getProxy().getPluginManager().registerListener(this, this);
 		ProxyServer.getInstance().getPluginManager().registerListener(this, new PlayerJoin());
+		ProxyServer.getInstance().getPluginManager().registerListener(this, new Ping());
 
 		ProxyServer.getInstance().getPluginManager().registerCommand(this, new CommandAnnonce());
 		ProxyServer.getInstance().getPluginManager().registerCommand(this, new CommandMsg());
 		ProxyServer.getInstance().getPluginManager().registerCommand(this, new CommandStaffTchat());
 		ProxyServer.getInstance().getPluginManager().registerCommand(this, new CommandHub());
+		ProxyServer.getInstance().getPluginManager().registerCommand(this, new CommandMaintenance());
 
 		this.instance = this;
 		this.hwsConfig = new HWSConfig();
-		
-		//Test remove aprés !!
+
+		// Test remove aprés !!
 		this.hwsConfig.setRedis_ip("51.77.149.191");
 		this.hwsConfig.setRedis_pass("b8tXJ/QyjSQInxPPTlPND5yOmaODjhJbnrD75F939Fe/xjPIcBzoA71yDPUgkxSyz/sSn8Wgln4ImDJA");
 		this.hwsConfig.connect_redis();
-		
+
 		this.hwsConfig.setMongo_ip("51.77.149.191");
 		this.hwsConfig.setMongo_pass("WN6uN44g2eA7yqse2mLC9RB8e9pUM43h");
 		this.hwsConfig.setMongo_usr("admin");

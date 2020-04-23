@@ -16,7 +16,7 @@ public class CommandStaffTchat extends Command {
 	public CommandStaffTchat() {
 		super("TchatStaff", "Hws.TchatStaff");
 	}
-
+	
 	@SuppressWarnings("deprecation")
 	@Override
 	public void execute(CommandSender sender, String[] args) {
@@ -27,13 +27,13 @@ public class CommandStaffTchat extends Command {
 		}
 		
 		String msg = "";
-		for(int i = 1; i < args.length; i++) {
+		for(int i = 0; i < args.length; i++) {
 			msg = msg+" "+args[i];
 		}
 
 		if (sender instanceof ProxiedPlayer) {
 			
-			SendMessageAtAll(msg);
+			SendMessageAtAll("§7[§aTchatStaff§7]§f"+  sender.getName() + " §7: §f"+ msg);
 		}
 	}
 	

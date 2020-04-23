@@ -8,11 +8,12 @@ import net.md_5.bungee.api.plugin.Listener;
 import net.md_5.bungee.event.EventHandler;
 
 public class PlayerJoin implements Listener {
-
+	
 	@SuppressWarnings("deprecation")
 	@EventHandler
 	public void onjoin(PostLoginEvent e) {
 		ProxiedPlayer p = e.getPlayer();
+		
 		if (new HWSAPI().hwsConfig.getMongoConnection() != null && new HWSAPI().hwsConfig.GetJedis() != null) {
 			new DataManageur(p).getPlayerData();
 		} else {
@@ -37,7 +38,8 @@ public class PlayerJoin implements Listener {
 		ProxiedPlayer p = e.getPlayer();
 		if(Main.instance.StaffListe.contains(p))
 				Main.instance.StaffListe.remove(p);
-		
+
+		//Add insyncron task (5-6 secondes)
 		new DataManageur(p).setPlayerData();
 	}
 }

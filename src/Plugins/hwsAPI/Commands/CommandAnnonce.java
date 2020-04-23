@@ -9,7 +9,7 @@ public class CommandAnnonce extends Command {
 
 
 	public CommandAnnonce() {
-		super("annonce", "HwsApi.Admin");
+		super("annonce", "Hws.Admin");
 	}
 	@SuppressWarnings("deprecation")
 	public void execute(CommandSender sender, String[] args) {
